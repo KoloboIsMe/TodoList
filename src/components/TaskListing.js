@@ -1,33 +1,23 @@
 import React from "react";
 import Task from "./Task";
-import ReactDOM from "react-dom";
 
 class TaskListing extends React.Component {
-    static id = 0;
-
     constructor(props) {
         super(props);
 
-        // TODO Import tasks
-
         this.state = {
-            items: [new Task(TaskListing.id++)]
+            items: [new Task(this)]
         };
-
-        // Lancement de l'application
-        ReactDOM.render(<TaskListing/>, document.querySelector("#root"));
     }
 
     render() {
         return (
             <div>
                 <ol>
-                    {this.state.items.map(item => ((
+                    {this.state.items && this.state.items.map(item => ((
                         <li key={item.id}>
                             {item.render()}
-                            <button
-                                type="button"
-                                onClick={() => this.deleteTask(item.id)}>
+                            <button onClick={() => this.deleteTask(item.id)}>
                                 Supprimer
                             </button>
                         </li>
@@ -38,7 +28,9 @@ class TaskListing extends React.Component {
     }
 
     addTask() {
-        this.items += new Task(this.id++);
+        this.setState(prevState => ({
+            items: [...prevState.items, new Task(this)]
+        }));
     }
 
     deleteTask(id) {
@@ -48,10 +40,9 @@ class TaskListing extends React.Component {
     }
 
     count(done = true) {
-        // TODO compter les tâches faites ou pas faites selon le paramètre
         let counter = 0;
         for (let i = 0; i < this.state.items.length; i++) {
-            if (!this.state.items[i].done) {
+            if (this.state.items[i].isChecked === done) {
                 counter++;
             }
         }

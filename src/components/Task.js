@@ -1,46 +1,38 @@
 import React from "react";
+import {v4 as uuidv4} from "uuid";
 
-/**
- * La représentation objet d'une tache
- */
-class Task {
-    /**
-     * Constructeur qui initialise les attributs et stocke l'ID donné.
-     * @param id
-     */
-    constructor(id) {
-        this.id = id;
+class Task{
+    constructor(listing) {
+        this.listing = listing;
+        this.id = uuidv4();
         this.label = "New task";
         this.isChecked = false;
-        this.category = null;
     }
 
-    /**
-     * Change l'état de la tâche.
-     */
+    update() {
+        // Mettre à jour le TaskListing
+        this.listing.setState(prevState => ({
+            items:[this]
+        }));
+    }
+
     toggleDone() {
         this.isChecked = !this.isChecked;
+        this.update();
     }
 
-    /**
-     * Change le label de la tâche.
-     * @param label
-     */
     edit(label) {
         this.label = label;
+        this.update();
     }
 
-    /**
-     * Formatte la tâche.
-     * @returns {JSX.Element}
-     */
     render() {
         return (
             <label>
                 <input
                     type="checkbox"
-                    checked={this.done}
-                    onChange={() => this.toggleDone()}
+                    checked={this.isChecked}
+                    onChange={this.toggleDone()}
                 />
                 <input
                     type="text"
@@ -56,3 +48,4 @@ class Task {
 }
 
 export default Task;
+
