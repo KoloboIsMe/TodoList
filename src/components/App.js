@@ -6,26 +6,26 @@ class App extends React.Component {
         super(props);
         this.state = {
             items: [
-                {text: "Learn JavaScript", done: false, id: 1},
-                {text: "Learn React", done: false, id: 2},
-                {text: "Play around in JSFiddle", done: true, id: 3},
-                {text: "Build something awesome", done: true, id: 4}
+                {text: "Learn JavaScript", isChecked: false, id: 1},
+                {text: "Learn React", isChecked: false, id: 2},
+                {text: "Play around in JSFiddle", isChecked: true, id: 3},
+                {text: "Build something awesome", isChecked: true, id: 4}
             ]
         };
         this.id = 5;
+        this.state.filter = '';
         this.addItem = this.addItem.bind(this);
         this.delete = this.delete.bind(this);
     }
 
     addItem() {
-        const newItem = {id: this.id++, text: "New task", done: false};
+        const newItem = {id: this.id++, text: "New task", isChecked: false};
         this.setState(prevState => ({
             items: [...prevState.items, newItem]
         }));
     }
 
     render() {
-
         return (
             <div>
                 <header>
@@ -33,20 +33,21 @@ class App extends React.Component {
                 </header>
                 <ol>
                     {this.state.items.map(item => (
+                        this.inFilter(item.text) ?
                         <li key={item.id}>
                             <label>
                                 <input
                                     type="checkbox"
-                                    checked={item.done}
-                                    onChange={() => this.toggleDone(item.id)}
+                                    checked={item.isChecked}
+                                    onChange={() => this.toggle(item.id)}
                                 />
                                 <input
                                     type="text"
                                     value={item.text}
-                                    className={item.done ? "done" : ""}
+                                    className={item.isChecked ? "done" : ""}
                                     id={item.id}
                                     onChange={e => this.handleEdit(item.id, e.target.value)}
-                                    disabled={item.done}
+                                    disabled={item.isChecked}
                                 />
                                 <button
                                     type="button"
@@ -54,11 +55,17 @@ class App extends React.Component {
                                     Supprimer
                                 </button>
                             </label>
-                        </li>
+                        </li> :
+                            null
                     ))}
                 </ol>
                 <footer>
                     <button onClick={this.addItem}>+</button>
+                    <h2>Filtrer</h2>
+                    <input
+                        type="text"
+                        onChange={e => this.handleFilter(e.target.value)}
+                    />
                 </footer>
             </div>
         );
@@ -72,10 +79,10 @@ class App extends React.Component {
         }));
     }
 
-    toggleDone(itemId) {
+    toggle(itemId) {
         this.setState(prevState => ({
             items: prevState.items.map(item =>
-                item.id === itemId ? {...item, done: !item.done} : item
+                item.id === itemId ? {...item, isChecked: !item.isChecked} : item
             )
         }));
     }
@@ -86,15 +93,28 @@ class App extends React.Component {
         }));
     }
 
-    count(done = true) {
+    count(isChecked = true) {
         let counter = 0;
         for (let i = 0; i < this.state.items.length; i++) {
-            if (this.state.items[i].done === done) {
+            if (this.state.items[i].isChecked === isChecked) {
                 counter++;
             }
         }
         return counter;
     }
+
+    handleFilter(filter) {
+        this.setState( ({
+            filter: filter
+        }));
+    }
+
+   inFilter(text) {
+    if(this.state.filter === '') {
+        return true;
+    }
+    return text.toLowerCase().includes(this.state.filter.toLowerCase())
+}
 }
 
 export default App;
