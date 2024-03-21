@@ -29,8 +29,7 @@ class App extends React.Component {
         return (
             <div>
                 <header>
-                    <p>Total items: {this.state.items.length}</p>
-                    <p>Total items: {this.count(false) + '/' + this.count(true)}</p>*
+                    <p>TO-DOs : {this.count(false) + '/' + this.state.items.length}</p>*
                 </header>
                 <ol>
                     {this.state.items.map(item => (
@@ -90,7 +89,7 @@ class App extends React.Component {
     count(done = true) {
         let counter = 0;
         for (let i = 0; i < this.state.items.length; i++) {
-            if (this.state.items[i].isChecked === done) {
+            if (this.state.items[i].done === done) {
                 counter++;
             }
         }
