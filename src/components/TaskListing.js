@@ -1,12 +1,12 @@
 import React from "react";
-import Task from "./Task";
+import TaskOld from "./TaskOld";
 
 class TaskListing extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            items: [new Task(this)]
+            items: [new TaskOld(this)]
         };
     }
 
@@ -29,7 +29,7 @@ class TaskListing extends React.Component {
 
     addTask() {
         this.setState(prevState => ({
-            items: [...prevState.items, new Task(this)]
+            items: [...prevState.items, new TaskOld(this)]
         }));
     }
 

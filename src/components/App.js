@@ -1,38 +1,56 @@
 import React from "react";
+import {v4 as uuidv4} from "uuid";
 class App extends React.Component {
     static id = 0;
 
     constructor(props) {
         super(props);
+        let data = localStorage.getItem('todo-data');
+        if (data) {
+            data = JSON.parse(data);
+            if (!Array.isArray(data)) {
+                data = [];
+            }
+        } else {
+            data = [];
+        }
         this.state = {
-            items: [
-                {text: "Learn JavaScript", isChecked: false, id: 1},
-                {text: "Learn React", isChecked: false, id: 2},
-                {text: "Play around in JSFiddle", isChecked: true, id: 3},
-                {text: "Build something awesome", isChecked: true, id: 4}
-            ]
+            tasks: data,
+            filter: ''
         };
-        this.id = 5;
-        this.state.filter = '';
+        this.id = this.state.tasks.length > 0 ? this.state.tasks[this.state.tasks.length - 1].id + 1 : 0;
         this.addItem = this.addItem.bind(this);
         this.delete = this.delete.bind(this);
     }
 
+    componentDidMount() {
+        const data = localStorage.getItem('todo-data');
+        if(data) {
+            this.setState(JSON.parse(data));
+        }
+    }
+
+    componentDidUpdate() {
+        localStorage.setItem('todo-data', JSON.stringify(this.state));
+    }
+
     addItem() {
         const newItem = {id: this.id++, text: "New task", isChecked: false};
-        this.setState(prevState => ({
-            items: [...prevState.items, newItem]
-        }));
+        this.setState(prevState => {
+            const tasks = [...prevState.tasks, newItem];
+            localStorage.setItem('todo-data', JSON.stringify(tasks));
+            return {tasks};
+        });
     }
 
     render() {
         return (
             <div>
                 <header>
-                    <p>TO-DOs : {this.count(false) + '/' + this.state.items.length}</p>*
+                    <p>TO-DOs : {this.count(false) + '/' + this.state.tasks.length}</p>
                 </header>
                 <ol>
-                    {this.state.items.map(item => (
+                    {this.state.tasks.map(item => (
                         this.inFilter(item.text) ?
                         <li key={item.id}>
                             <label>
@@ -64,6 +82,7 @@ class App extends React.Component {
                     <h2>Filtrer</h2>
                     <input
                         type="text"
+                        value={this.state.filter}
                         onChange={e => this.handleFilter(e.target.value)}
                     />
                 </footer>
@@ -72,31 +91,37 @@ class App extends React.Component {
     }
 
     handleEdit(itemId, newText) {
-        this.setState(prevState => ({
-            items: prevState.items.map(item =>
+        this.setState(prevState => {
+            const tasks = prevState.tasks.map(item =>
                 item.id === itemId ? {...item, text: newText} : item
-            )
-        }));
+            );
+            localStorage.setItem('todo-data', JSON.stringify(tasks));
+            return {tasks};
+        });
     }
 
     toggle(itemId) {
-        this.setState(prevState => ({
-            items: prevState.items.map(item =>
+        this.setState(prevState => {
+            const tasks = prevState.tasks.map(item =>
                 item.id === itemId ? {...item, isChecked: !item.isChecked} : item
-            )
-        }));
+            );
+            localStorage.setItem('todo-data', JSON.stringify(tasks));
+            return {tasks};
+        });
     }
 
     delete(itemId) {
-        this.setState(prevState => ({
-            items: prevState.items.filter(item => item.id !== itemId)
-        }));
+        this.setState(prevState => {
+            const tasks = prevState.tasks.filter(item => item.id !== itemId);
+            localStorage.setItem('todo-data', JSON.stringify(tasks));
+            return {tasks};
+        });
     }
 
     count(isChecked = true) {
         let counter = 0;
-        for (let i = 0; i < this.state.items.length; i++) {
-            if (this.state.items[i].isChecked === isChecked) {
+        for (let i = 0; i < this.state.tasks.length; i++) {
+            if (this.state.tasks[i].isChecked === isChecked) {
                 counter++;
             }
         }
@@ -110,11 +135,11 @@ class App extends React.Component {
     }
 
    inFilter(text) {
-    if(this.state.filter === '') {
+    if(this.state.filter === '' || this.state.filter.length <= 3) {
         return true;
     }
     return text.toLowerCase().includes(this.state.filter.toLowerCase())
-}
+    }
 }
 
 export default App;
