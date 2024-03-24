@@ -1,5 +1,7 @@
 import React from "react";
 import {v4 as uuidv4} from "uuid";
+import { FaArrowUp, FaArrowDown, FaTrash } from 'react-icons/fa';
+
 class App extends React.Component {
     static id = 0;
 
@@ -25,7 +27,7 @@ class App extends React.Component {
 
     componentDidMount() {
         const data = localStorage.getItem('todo-data');
-        if(data) {
+        if (data) {
             this.setState(JSON.parse(data));
         }
     }
@@ -43,38 +45,49 @@ class App extends React.Component {
         });
     }
 
+    searching() {
+        return this.state.filter.length <= 3;
+    }
+
     render() {
         return (
             <div>
                 <header>
-                    <p>TO-DOs : {this.count(false) + '/' + this.state.tasks.length}</p>
+                    <p>TO-DOs : {this.searching() ? this.count(false) + '/' + this.state.tasks.length : "Filtrage en cours ..."}</p>
                 </header>
                 <ol>
                     {this.state.tasks.map(item => (
                         this.inFilter(item.text) ?
-                        <li key={item.id}>
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    checked={item.isChecked}
-                                    onChange={() => this.toggle(item.id)}
-                                />
-                                <input
-                                    type="text"
-                                    value={item.text}
-                                    className={item.isChecked ? "done" : ""}
-                                    id={item.id}
-                                    onChange={e => this.handleEdit(item.id, e.target.value)}
-                                    disabled={item.isChecked}
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => this.delete(item.id)}>
-                                    Supprimer
-                                </button>
-                            </label>
-                        </li> :
-                            null
+                            <li key={item.id}>
+                                <label>
+                                    <input
+                                        type="checkbox"
+                                        checked={item.isChecked}
+                                        onChange={() => this.toggle(item.id)}
+                                    />
+                                    <input
+                                        type="text"
+                                        value={item.text}
+                                        className={item.isChecked ? "done" : ""}
+                                        id={item.id}
+                                        onChange={e => this.handleEdit(item.id, e.target.value)}
+                                        disabled={item.isChecked}
+                                    />
+                                    <FaTrash
+                                        onClick={() => this.delete(item.id)}>
+                                        Supprimer
+                                    </FaTrash>
+                                    <FaArrowUp
+                                        onClick={() => this.goUp(item.id)}>
+                                        Up
+                                    </FaArrowUp>
+                                    <FaArrowDown
+                                        onClick={() => this.goDown(item.id)}>
+                                        Down
+                                    </FaArrowDown>
+                                </label>
+                            </li>
+                            : null
                     ))}
                 </ol>
                 <footer>
@@ -129,16 +142,34 @@ class App extends React.Component {
     }
 
     handleFilter(filter) {
-        this.setState( ({
+        this.setState(({
             filter: filter
         }));
     }
 
-   inFilter(text) {
-    if(this.state.filter === '' || this.state.filter.length <= 3) {
-        return true;
+    inFilter(text) {
+        if (this.state.filter === '' || this.state.filter.length <= 3) {
+            return true;
+        }
+        return text.toLowerCase().includes(this.state.filter.toLowerCase())
     }
-    return text.toLowerCase().includes(this.state.filter.toLowerCase())
+
+    goUp(id) {
+        const tasks = [...this.state.tasks];
+        const index = tasks.findIndex(task => task.id === id);
+        if (index > 0) {
+            [tasks[index - 1], tasks[index]] = [tasks[index], tasks[index - 1]];
+            this.setState({tasks});
+        }
+    }
+
+    goDown(id) {
+        const tasks = [...this.state.tasks];
+        const index = tasks.findIndex(task => task.id === id);
+        if (index < tasks.length - 1) {
+            [tasks[index + 1], tasks[index]] = [tasks[index], tasks[index + 1]];
+            this.setState({tasks});
+        }
     }
 }
 
